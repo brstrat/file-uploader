@@ -237,7 +237,10 @@ qq.obj2url = function(obj, temp, prefixDone){
     if (!prefixDone && temp) {
         prefix = (/\?/.test(temp)) ? (/\?$/.test(temp)) ? '' : '&' : '?';
         uristrings.push(temp);
-        uristrings.push(qq.obj2url(obj));
+        query_string = qq.obj2url(obj);
+        if (query_string) {
+            uristrings.push(query_string);
+        }
     } else if ((Object.prototype.toString.call(obj) === '[object Array]') && (typeof obj != 'undefined') ) {
         // we wont use a for-in-loop on an array (performance)
         for (var i = 0, len = obj.length; i < len; ++i){
@@ -1236,7 +1239,9 @@ qq.extend(qq.UploadHandlerForm.prototype, qq.UploadHandlerAbstract.prototype);
 
 qq.extend(qq.UploadHandlerForm.prototype, {
     add: function(fileInput){
-        fileInput.setAttribute('name', this._options.inputName);
+        if (this._options.inputName) {
+            fileInput.setAttribute('name', this._options.inputName);
+        }
         var id = 'qq-upload-handler-iframe' + qq.getUniqueId();
 
         this._inputs[id] = fileInput;
@@ -1277,7 +1282,9 @@ qq.extend(qq.UploadHandlerForm.prototype, {
         }
 
         var fileName = this.getName(id);
-        params[this._options.inputName] = fileName;
+        if (this._options.inputName) {
+            params[this._options.inputName] = fileName;
+        }
 
         var iframe = this._createIframe(id);
         var form = this._createForm(iframe, params);
@@ -1489,7 +1496,9 @@ qq.extend(qq.UploadHandlerXhr.prototype, {
 
         // build query string
         params = params || {};
-        params[this._options.inputName] = name;
+        if (this._options.inputName) {
+            params[this._options.inputName] = name;
+        }
         var queryString = qq.obj2url(params, this._options.action);
 
         var protocol = this._options.demoMode ? "GET" : "POST";
@@ -1498,7 +1507,9 @@ qq.extend(qq.UploadHandlerXhr.prototype, {
         xhr.setRequestHeader("X-File-Name", encodeURIComponent(name));
         if (this._options.forceMultipart) {
             var formData = new FormData();
-            formData.append(this._options.inputName, file);
+            if (this._options.inputName) {
+                formData.append(this._options.inputName, file);
+            }
             file = formData;
         } else {
             xhr.setRequestHeader("Content-Type", "application/octet-stream");

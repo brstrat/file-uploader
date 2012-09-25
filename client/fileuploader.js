@@ -310,7 +310,9 @@ qq.FileUploaderBasic = function(o){
         showMessage: function(message){
             alert(message);
         },
-        inputName: 'qqfile'
+        inputName: 'qqfile',
+        inputNameParam: true,
+        extraFormData: {}
     };
     qq.extend(this._options, o);
     this._wrapCallbacks();
@@ -381,6 +383,8 @@ qq.FileUploaderBasic.prototype = {
             maxConnections: this._options.maxConnections,
             customHeaders: this._options.customHeaders,
             inputName: this._options.inputName,
+            inputNameParam: this._options.inputNameParam,
+            extraFormData: this._options.extraFormData,
             demoMode: this._options.demoMode,
             onProgress: function(id, fileName, loaded, total){
                 self._onProgress(id, fileName, loaded, total);
@@ -1239,9 +1243,7 @@ qq.extend(qq.UploadHandlerForm.prototype, qq.UploadHandlerAbstract.prototype);
 
 qq.extend(qq.UploadHandlerForm.prototype, {
     add: function(fileInput){
-        if (this._options.inputName) {
-            fileInput.setAttribute('name', this._options.inputName);
-        }
+        fileInput.setAttribute('name', this._options.inputName);
         var id = 'qq-upload-handler-iframe' + qq.getUniqueId();
 
         this._inputs[id] = fileInput;
@@ -1282,7 +1284,7 @@ qq.extend(qq.UploadHandlerForm.prototype, {
         }
 
         var fileName = this.getName(id);
-        if (this._options.inputName) {
+        if (this._options.inputNameParam) {
             params[this._options.inputName] = fileName;
         }
 
@@ -1496,7 +1498,7 @@ qq.extend(qq.UploadHandlerXhr.prototype, {
 
         // build query string
         params = params || {};
-        if (this._options.inputName) {
+        if (this._options.inputNameParam) {
             params[this._options.inputName] = name;
         }
         var queryString = qq.obj2url(params, this._options.action);
@@ -1507,8 +1509,11 @@ qq.extend(qq.UploadHandlerXhr.prototype, {
         xhr.setRequestHeader("X-File-Name", encodeURIComponent(name));
         if (this._options.forceMultipart) {
             var formData = new FormData();
-            if (this._options.inputName) {
-                formData.append(this._options.inputName, file);
+            formData.append(this._options.inputName, file);
+            if (this._options.extraFormData) {
+                for (extra_data in this._options.extraFormData) {
+                    formData.append(this._options.extraFormData[y], this._options.extraFormData[extra_data]);
+                }
             }
             file = formData;
         } else {

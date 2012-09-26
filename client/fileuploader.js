@@ -339,6 +339,10 @@ qq.FileUploaderBasic.prototype = {
     setParams: function(params){
         this._options.params = params;
     },
+    setAction: function(action){
+        this._options.action = action;
+        this._handler._options.action = action;
+    },
     getInProgress: function(){
         return this._filesInProgress;
     },
@@ -1502,7 +1506,6 @@ qq.extend(qq.UploadHandlerXhr.prototype, {
             params[this._options.inputName] = name;
         }
         var queryString = qq.obj2url(params, this._options.action);
-
         var protocol = this._options.demoMode ? "GET" : "POST";
         xhr.open(protocol, queryString, true);
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
@@ -1512,7 +1515,7 @@ qq.extend(qq.UploadHandlerXhr.prototype, {
             formData.append(this._options.inputName, file);
             if (this._options.extraFormData) {
                 for (extra_data in this._options.extraFormData) {
-                    formData.append(this._options.extraFormData[y], this._options.extraFormData[extra_data]);
+                    formData.append(extra_data, this._options.extraFormData[extra_data]);
                 }
             }
             file = formData;
